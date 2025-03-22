@@ -33,6 +33,25 @@ app.get('/api/covers/:mangaId/:fileName', async (req, res) => {
     }
 });
 
+app.get('/api/chapter/:chapterId', async (req, res) => {
+    try {
+        const { chapterId } = req.params;
+        const response = await axios.get(`https://api.mangadex.org/at-home/server/${chapterId}`);
+
+        const baseChapterUrl = response.data.baseUrl;
+        const hash = response.data.chapter.hash;
+
+        const pages = response.data.chapter.dataSaver.map((fileName) => ({
+            pageUrl: `${baseChapterUrl}/data-saver/${hash}/${fileName}`
+        }));
+
+        res.json({ pages });
+    } catch (error) {
+        console.error('Error obteniendo las páginas del capítulo:', error.message);
+        res.status(500).json({ error: 'Error obteniendo las páginas del capítulo' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
